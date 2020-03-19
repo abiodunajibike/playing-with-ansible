@@ -1,0 +1,112 @@
+---
+
+  - name: Debug
+    hosts: all
+    tasks:
+
+      - name: Say Hello
+        debug: msg="Hello Ansible"
+
+  - name: Upgrade and Reboot
+    hosts: all
+    tasks:
+
+      - name: Update system package cache
+        apt: update_cache=yes
+        become: yes
+        become_user: root
+
+      - name: Upgrade system packages
+        apt: upgrade=full
+        become: yes
+        become_user: root
+
+      - name: Rebooting if needed
+        command: shutdown -r now removes=/var/run/reboot-required
+        become: yes
+        become_user: root
+        async: 0
+        poll: 0
+        ignore_errors: true
+        register: restarted
+
+      - name: Waiting for reboot
+        local_action: wait_for host=localhost port=2200 delay=15 state=started
+        when: restarted.changed
+
+      - name: Show a registered variable's contents
+        debug: var=registered
+
+  - name: Provision Vagrant
+    hosts: all
+    tasks:
+ 
+      - name: Install the Git package
+        apt: name=git state=present
+        become: yes
+        become_user: root
+
+      - name: Remove the Git package
+        apt: name=git state=absent
+        become: yes
+        become_user: root
+
+  - name: Create a user
+    hosts: all
+    vars:
+        user_username: ansible
+        user_password: mysecretword
+        user_passfile: ./password.hash
+
+    tasks:
+
+      - name: Generate user password file
+        shell: python ./password_hasher.py {{ user_password }} > {{ user_passfile }}
+        args:
+          creates: "{{ user_passfile }}"
+        delegate_to: localhost
+    
+      - name: Ensure User is Present
+        user: name={{ user_username }} password={{ lookup('file', user_passfile) }} group=sudo generate_ssh_key=yes shell="/bin/bash" state=present
+        become: yes
+        become_user: root
+
+  - name: Install Redis
+    hosts: all
+    vars:
+      redis_port: 6379
+      redis_databases: 1
+  
+    tasks:
+
+      - name: Ensure Redis is present
+        apt: pkg=redis-server state=latest
+        #sudo: true
+        become: yes
+        become_user: root
+
+      - name: Ensure Redis is started
+        service: name=redis-server state=started enabled=yes
+        #sudo: true
+        become: yes
+        become_user: root
+
+      - name: Ensure Redis Configuration
+        template: src=redis.conf.j2 dest=/etc/redis/redis.conf owner=root group=root mode=0644
+        #sudo: true
+        become: yes
+        become_user: root
+        notify: Redis Restart
+
+    # handlers are run at the end of the play or playbook; has nothing to do with their position in the play files
+    # it's useful when you want to restart only once
+    handlers:
+
+      - name: Redis Restart
+        service: name=redis-server state=restarted enabled=yes
+        #sudo: true
+        become: yes
+        become_user: root
+
+      - name: Display Host Variables
+        debug: var=hostvars

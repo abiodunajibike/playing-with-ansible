@@ -1,0 +1,2 @@
+.vagrant/
+.vagrant/machines .vagrant/provisioners .vagrant/rgloader
