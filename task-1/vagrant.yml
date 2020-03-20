@@ -1,0 +1,24 @@
+---
+
+- name: Debug
+  hosts: all
+  tasks:
+
+     - name: Say Hello Ansible
+       debug: msg="Hello Ansible"
+
+- name: Configure apache
+  hosts: all
+  tasks:
+
+     - name: Install the latest version of apache
+       apt: name=apache2 state=latest update_cache=yes
+       become: yes
+
+     - name: Copy apache index page
+       become: yes
+       template:
+         src: ./apache/index.html
+         dest: /var/www/html/index.html
+       vars:
+          host_machine: MacBook Pro
