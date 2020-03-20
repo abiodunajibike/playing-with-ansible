@@ -11,7 +11,15 @@
   hosts: all
   tasks:
 
-     - name: Install the latest version of apache
+     - name: Get target machine time
+       shell:
+         cmd: date
+       register: current_datetime
+
+     - debug:
+          var: current_datetime
+
+     - name: Install latest apache
        apt: name=apache2 state=latest update_cache=yes
        become: yes
 
@@ -22,3 +30,4 @@
          dest: /var/www/html/index.html
        vars:
           host_machine: MacBook Pro
+          deployment_datetime: "{{ current_datetime.stdout }}"
