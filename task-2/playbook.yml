@@ -1,0 +1,40 @@
+---
+
+- name: Set ssh key
+  hosts: all
+  tasks:
+     - name: Set authorized key taken from file
+       authorized_key:
+         user: ubuntu
+         state: present
+         key: "{{ lookup('file', '/Users/moruf/.ssh/ansible-keypair.pub') }}"
+
+- name: Debug
+  hosts: all
+  tasks:
+     - name: Say Hello Ansible
+       debug: msg="Hello Ansible"
+
+- name: Configure apache
+  hosts: all
+  tasks:
+     - name: Get target machine time
+       shell:
+         cmd: date
+       register: current_datetime
+
+     - debug:
+          var: current_datetime
+
+     - name: Install latest apache
+       apt: name=apache2 state=latest update_cache=yes
+       become: yes
+
+     - name: Copy apache index page
+       become: yes
+       template:
+         src: ./apache/index.html
+         dest: /var/www/html/index.html
+       vars:
+          host_machine: MacBook Pro
+          deployment_datetime: "{{ current_datetime.stdout }}"
