@@ -1,2 +1,5 @@
 .vagrant/
 .vagrant/machines .vagrant/provisioners .vagrant/rgloader
+
+task-2/terraform/.terraform/*
+task-2/terraform/terraform.tfstate
