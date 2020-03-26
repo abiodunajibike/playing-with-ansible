@@ -3,3 +3,5 @@
 
 task-2/terraform/.terraform/*
 task-2/terraform/terraform.tfstate
+task-2/terraform/terraform.tfstate.backup
+

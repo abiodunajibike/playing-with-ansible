@@ -20,3 +20,7 @@ variable "desired_size" {
 variable "ssh_key_name" {
   default = "ansible-keypair"
 }
+
+variable "ssh_key_file_path" {
+  default = "/Users/moruf/.ssh/ansible-keypair.pub"
+}

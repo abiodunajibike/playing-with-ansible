@@ -17,5 +17,6 @@ module "ec2" {
   subnet_id = module.networking.subnet_id
   demo_sg_ids = module.security.demo_sg_ids
   ssh_key_name = var.ssh_key_name
+  ssh_key_file_path = var.ssh_key_file_path
 }
 

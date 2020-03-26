@@ -8,6 +8,8 @@ variable "demo_sg_ids" {
    type = list(string)
 }
 variable "ssh_key_name" {}
+variable "ssh_key_file_path" {}
+
 
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -27,7 +29,13 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_key_pair" "ssh_key" {
   key_name   = var.ssh_key_name
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDHk9N/2XR/BOaFua6sEqSeqHssHdJmDnIb6Rq867UNraqBDSv9bhU/Tp8XST0vJLq1+oM4pHANNPSGAGjOhCDGiNWpto3vwzPNTuaFb/eqairTsSY4CMti5wiBiZLnqsF8g7stgPCO2DB2fgpjEO77aes/sx46B34GYzDipk20suuaDjuRBr+3YSNz8i2eMBXpaNPG6k0bghfH8/g4ioV6Wr1Byr4tbgV57mzgn/OHyD/gfKoG6ozltKqFKnGdDBW/6W/7GQV6d6Fn34kh8NPws36L3/kS6hSoivGN43IyuhwiWRHEbpsA0+v0ZNGBxOFtFjVKAAhpmrTq8y8ETQs5"
+  public_key = file(var.ssh_key_file_path)
+}
+
+resource "aws_ssm_parameter" "ec2_ssh_key" {
+  name  = "ec2_ssh_key"
+  type  = "SecureString"
+  value = file(var.ssh_key_file_path)
 }
 
 resource "aws_instance" "web" {
