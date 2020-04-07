@@ -1,0 +1,46 @@
+---
+
+- name: Debug
+  hosts: localhost
+  gather_facts: False
+  tasks:
+     - name: Say Hello Ansible
+       debug: msg="Hello Ansible"
+
+- name: Install Git
+  hosts: all
+  gather_facts: False
+
+  tasks:
+     - name: Install latest version of git
+       apt: name=git state=latest
+       become: yes
+
+     - name: Check git installed version
+       command: git --version
+       register: git_version
+
+     - debug:
+         var:  git_version
+
+- name: Git clone flask app
+  hosts: all
+  gather_facts: False
+
+  tasks:
+     - name: Clone app
+       git:
+         repo: 'https://github.com/makkarlabs/flask_app.git'
+         dest: /flask_app
+       become: yes
+       register: output
+
+     - debug:
+         var: output
+
+     - name:
+       command: ls -la /
+       register: cmd_output
+
+     - debug:
+         var: cmd_output

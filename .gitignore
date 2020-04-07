@@ -1,7 +1,7 @@
 .vagrant/
 .vagrant/machines .vagrant/provisioners .vagrant/rgloader
 
-task-2/terraform/.terraform/*
-task-2/terraform/terraform.tfstate
-task-2/terraform/terraform.tfstate.backup
+**/terraform/.terraform/**
+**/terraform/terraform.tfstate
+**/terraform/terraform.tfstate.backup
 
