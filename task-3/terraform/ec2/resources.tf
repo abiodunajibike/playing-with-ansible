@@ -1,4 +1,4 @@
-# Create a new instance of the latest Ubuntu 14.04 on an
+# Create a new instance of the latest Ubuntu 16.04 on an
 # t2.micro node with an AWS Tag naming it "DemoInstance"
 
 variable "instance_type" {}
@@ -16,7 +16,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
   }
 
   filter {

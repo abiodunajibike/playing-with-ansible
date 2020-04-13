@@ -4,43 +4,114 @@
   hosts: localhost
   gather_facts: False
   tasks:
-     - name: Say Hello Ansible
-       debug: msg="Hello Ansible"
+    - name: Say Hello Ansible
+      debug: msg="Hello Ansible"
 
-- name: Install Git
+- name: Prerequisites
   hosts: all
   gather_facts: False
 
   tasks:
-     - name: Install latest version of git
-       apt: name=git state=latest
-       become: yes
+    - name: Include variables
+      include_vars: variables.yml
 
-     - name: Check git installed version
-       command: git --version
-       register: git_version
+    - name: Create group for deploy
+      group:
+        name: "{{ app_group }}"
+        system: yes
+        state: present
+      become: yes
 
-     - debug:
-         var:  git_version
+    - name: Create user for deployment
+      user:
+        name: "{{ app_user }}"
+        groups: "{{ app_group }}"
+        append: yes
+      become: yes
 
-- name: Git clone flask app
+    - name: Create app folder
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        mode: 0755
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+      become: yes
+
+    - name: Copy flaskapp directory content
+      copy:
+        src: "flaskapp/"
+        dest: "{{ app_directory }}"
+      become: yes
+      become_user: "{{ app_user }}"
+
+- name: Configure nginx
   hosts: all
   gather_facts: False
 
   tasks:
-     - name: Clone app
-       git:
-         repo: 'https://github.com/makkarlabs/flask_app.git'
-         dest: /flask_app
-       become: yes
-       register: output
 
-     - debug:
-         var: output
+    - name: Install latest nginx
+      apt: name=nginx state=latest update_cache=yes
+      become: yes
 
-     - name:
-       command: ls -la /
-       register: cmd_output
+    - name: Remove default file
+      file:
+        state: absent
+        path: "/etc/nginx/sites-enabled/default"
+      become: yes
 
-     - debug:
-         var: cmd_output
+    - name: Copy nginx config to sites-available directory
+      template:
+        src: "./nginx.conf"
+        dest: "/etc/nginx/sites-enabled/nginx.conf"
+      become: yes
+      notify:
+        - restart nginx
+
+  handlers:
+    - name: restart nginx
+      service: name=nginx state=restarted
+      become: yes
+
+- name: Set up virtual env with pipenv
+  hosts: all
+  gather_facts: False
+
+  tasks:
+    - name: Include variables
+      include_vars: variables.yml
+
+    - name: Install dependencies
+      apt:
+        pkg:
+          - python3-pip
+        state: latest
+      become: yes
+
+    - name: Install virtualenv
+      pip:
+        name: virtualenv
+        executable: pip3
+      become: yes
+
+    - name: Install application dependencies into virtualenv
+      pip:
+        requirements: "{{ app_directory }}/requirements.txt"
+        virtualenv: "{{ app_directory }}/venv"
+        state: present
+      become: yes
+      become_user: "{{ app_user }}"
+      register: deps_output
+
+    - debug:
+        var: deps_output
+        
+    - name: Activate virtual env and start app
+      shell: source "{{ app_directory }}/venv/bin/activate" && flask run
+      args:
+        executable: /bin/bash
+      environment:
+        FLASK_APP: "{{ app_directory }}/hello.py"
+
+
