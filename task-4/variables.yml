@@ -1,4 +1,4 @@
 app_group: "flask"
 app_user: "flask"
-app_directory: "/home/ubuntu/learn_ansible/flask_app"
+app_directory: "/home/ubuntu/flaskapp"
 

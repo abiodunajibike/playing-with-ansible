@@ -8,11 +8,52 @@
     - name: Say Hello Ansible
       debug: msg='Hello Ansible'
 
+- name: Prerequisites
+  hosts: all
+  gather_facts: False
+
+  tasks:
+    - name: Include variables
+      include_vars: variables.yml
+
+    - name: Create group for deploy
+      group:
+        name: "{{ app_group }}"
+        system: yes
+        state: present
+      become: yes
+
+    - name: Create user for deployment
+      user:
+        name: "{{ app_user }}"
+        groups: "{{ app_group }}"
+        append: yes
+      become: yes
+
+    - name: Create app folder
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        mode: 0755
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+      become: yes
+
+    - name: Copy flaskapp directory content
+      copy:
+        src: "flaskapp/"
+        dest: "{{ app_directory }}"
+      become: yes
+      become_user: "{{ app_user }}"
+
 - name: Set up docker container
   hosts: all
   gather_facts: False
 
   tasks:
+    - name: Include variables
+      include_vars: variables.yml
+
     - name: Install dependencies
       apt:
         pkg:
@@ -34,7 +75,34 @@
       docker_container:
         name: nginx
         image: nginx
+        state: absent
+        #state: started
+        published_ports: 80:80
+        recreate: yes
+      become: yes
+
+    - name: Create docker image for flask app
+      docker_image:
+        build:
+          path: "{{ app_directory }}"
+          # When building an image downloads any updates to the FROM image in Dockerfile.
+          pull: yes
+          cache_from:
+            - python:3.7
+          nocache: yes
+        source: build
+        name: flaskapp_image
+        state: present
+        tag: v1
+        force_source: yes
+      become: yes
+
+    - name: Create docker container for flask app
+      docker_container:
+        name: flaskapp_container
+        image: flaskapp_image:v1
+        #state: absent
         state: started
-        ports:
-          - 80:80
+        published_ports: 80:80
+        recreate: yes
       become: yes
