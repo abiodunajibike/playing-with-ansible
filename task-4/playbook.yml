@@ -103,6 +103,6 @@
         image: flaskapp_image:v1
         #state: absent
         state: started
-        published_ports: 80:80
+        published_ports: 80:8080
         recreate: yes
       become: yes

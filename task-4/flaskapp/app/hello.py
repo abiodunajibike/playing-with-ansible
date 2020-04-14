@@ -11,4 +11,4 @@ if __name__ == "__main__":
     # defaults to host: 127.0.0.1 and port: 5000
     # to avoid restart the app for every change to take effect
     app.debug = True
-    app.run(host='0.0.0.0', port='80')
+    app.run(host='0.0.0.0', port='8080')

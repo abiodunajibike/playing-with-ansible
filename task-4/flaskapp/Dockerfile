@@ -21,7 +21,7 @@ RUN mkdir /app
 WORKDIR /flaskapp/app
 COPY ./app .
 
-EXPOSE 80
+EXPOSE 8080
 
 RUN chmod +x ./start_app.sh
 ENTRYPOINT ./start_app.sh
