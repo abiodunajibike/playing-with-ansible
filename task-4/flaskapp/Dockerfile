@@ -4,7 +4,6 @@ FROM python:3.7
 # Set environment variables
 ENV PYTHONUNBUFFERED 1
 
-# # Install any needed packages specified in requirements.txt
 RUN pip install pipenv
 
 # Create directory
@@ -15,6 +14,7 @@ WORKDIR /flaskapp
 
 ADD Pipfile .
 ADD Pipfile.lock .
+# # Install any needed packages specified in Pipfile.lock
 RUN pipenv install --system --deploy --ignore-pipfile
 
 RUN mkdir /app
