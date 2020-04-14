@@ -35,5 +35,6 @@
         name: nginx
         image: nginx
         state: started
-        published_ports: 80:80
+        ports:
+          - 80:80
       become: yes
