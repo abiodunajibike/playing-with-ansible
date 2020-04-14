@@ -1,0 +1,5 @@
+plugin: aws_ec2
+boto_profile: cloud_sandbox
+regions:
+  - us-east-1
+
