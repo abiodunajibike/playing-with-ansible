@@ -1,21 +1,22 @@
+-i https://pypi.org/simple/
 ansible==2.9.6
-boto==2.49.0
 boto3==1.12.39
-botocore==1.15.39
-cffi==1.14.0
-click==7.1.1
-cryptography==2.9
+boto==2.49.0
+botocore==1.15.49
+cffi==1.14.3
+click==7.1.2
+cryptography==3.2
 docutils==0.15.2
-Flask==1.1.2
+flask==1.1.2
 gunicorn==20.0.4
 itsdangerous==1.1.0
-Jinja2==2.11.1
-jmespath==0.9.5
-MarkupSafe==1.1.1
+jinja2==2.11.2
+jmespath==0.10.0
+markupsafe==1.1.1
 pycparser==2.20
 python-dateutil==2.8.1
-PyYAML==5.3.1
+pyyaml==5.3.1
 s3transfer==0.3.3
-six==1.14.0
-urllib3==1.25.8
-Werkzeug==1.0.1
+six==1.15.0
+urllib3==1.25.11 ; python_version != '3.4'
+werkzeug==1.0.1
